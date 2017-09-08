@@ -1,0 +1,14 @@
+{
+	"title"		:	"GPLACER",
+	"type"		:	"tool",
+	"tags"		:	[ "build", "scenic" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.dds",
+		"*.vcproj",
+		"*.bat",
+		"*.svn*"
+		"*.git*"
+	]
+}
