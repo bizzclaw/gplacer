@@ -1,4 +1,5 @@
 # ** GPLACER ** #
+*_Created By Joseph (Bizz) Tomlinson_*
 ## A Source Mapping Utility ##
 Gplacer is a simple tool for source mappers. Using gplacer, you can build by placing props in Garrysmod, and send them to hammer. This is useful for decorating maps quickly, and allows you to take advantage of pysics when decorating your maps.
 
@@ -24,4 +25,5 @@ You can change the entity class with the command: 'GPLACER_CLASS class_name'
 By default this is prop_static.
 
 # Legal #
-Copyright (c) 2017 Joseph Tomlinson All Rights Reserved.
+Copyright (c) 2017 Joseph Tomlinson.
+You are free to modify=and redistribute this work for non-profit use only, granted proper credit is given.
