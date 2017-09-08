@@ -26,4 +26,4 @@ By default this is prop_static.
 
 # Legal #
 Copyright (c) 2017 Joseph Tomlinson.
-You are free to modify=and redistribute this work for non-profit use only, granted proper credit is given.
+You are free to modify and redistribute this work for non-profit use only, granted proper credit is given.
