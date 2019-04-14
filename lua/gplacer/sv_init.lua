@@ -65,7 +65,13 @@ function GPLACER.Update(mapname, forceupdate)
     v.LastClass = v.Class
     v.LastPlaced = v.Pos or v.Ent:GetPos()
     local col = v.Ent:GetColor()
-    local mdl = v.Ent:GetModel()
+
+    local mdl
+		if IsValid(v.Ent.AttachedEntity) then
+			mdl = v.Ent.AttachedEntity:GetModel()
+		else
+			mdl = v.Ent:GetModel()
+		end
     local ang = v.Ent:GetAngles()
 
     local KeyValues = {
