@@ -41,7 +41,7 @@ function GPLACER.MatrixToString(matrix, iscolor)
   if iscolor then
     return " "..matrix.r.." "..matrix.g.." "..matrix.b
   else
-    return " "..matrix[1].." "..matrix[2].." "..matrix[3]
+    return " "..math.Round(matrix[1], 4).." "..math.Round(matrix[2], 4).." "..math.Round(matrix[3], 4)
   end
 end
 
