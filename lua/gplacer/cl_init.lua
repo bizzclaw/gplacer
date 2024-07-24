@@ -1,5 +1,20 @@
-net.Receive("gplacer_updateprops",function()
-	GPLACER.CurPlaced = net.ReadTable()
+GPLACER.CurPlaced = GPLACER.CurPlaced or {}
+
+net.Receive("gplacer_updateprop",function()
+	local index = net.ReadUInt(32)
+
+	local placeTable = {
+		Ent = net.ReadEntity(),
+		Class = net.ReadString(),
+	}
+
+	if (!IsValid(placeTable.Ent)) then
+		print("Error Finding Gplaced Prop at index: "..index)
+		return
+	end
+
+	GPLACER.CurPlaced[index] = placeTable
+
 end)
 
 net.Receive("gplacer_updatestate",function()
@@ -10,7 +25,7 @@ net.Receive("gplacer_updatestate",function()
 			for k, v in pairs(GPLACER.CurPlaced or {}) do
 				local ent = v.Ent
 				if not IsValid(ent) then continue end
-				local pos = v.Pos or (ent:GetPos() + ent:OBBCenter())
+				local pos = (ent:GetPos() + ent:OBBCenter())
 				local pos2d = pos:ToScreen()
 				if pos:Distance(EyePos()) <= 1024 then
 				draw.SimpleTextOutlined(v.Class, "DermaLarge", pos2d.x, pos2d.y,	Color(0,130,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255))

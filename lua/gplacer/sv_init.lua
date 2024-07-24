@@ -1,6 +1,5 @@
 GPLACER.CurVersion = nil
 
-
 function GPLACER.FindVersion(mapname, forceupdate)
   mapname = mapname or game.GetMap()
   if not forceupdate and GPLACER.CurVersion then
@@ -50,15 +49,26 @@ function GPLACER.Update(mapname, forceupdate)
   if not version then
     return false
   end
+
   mapname = mapname or game.GetMap()
   hammer.SendCommand("session_begin "..mapname.." "..version)
 
+  local cur = 0
+  local total = 0
+  local goal = table.Count(GPLACER.CurPlaced)
+
   for k, v in pairs(GPLACER.CurPlaced) do
-    if v.LastPlaced then
-      hammer.SendCommand("entity_delete "..(v.LastClass or v.Class)..GPLACER.MatrixToString(v.LastPlaced)) -- delete all of the entities from the last update
+
+    cur = cur + 1
+    total = total + 1
+
+    local deletePos = v.LastPlaced or IsValid(v.Ent) and v.Ent:GetPos()
+    if (deletePos) then
+      hammer.SendCommand("entity_delete "..(v.LastClass or v.Class)..GPLACER.MatrixToString(deletePos)) -- delete all of the entities from the last update
     end
+
     if not IsValid(v.Ent) then
-      GPLACER.CurPlaced[k] = nil -- table.Remove wasn't working.
+      GPLACER.CurPlaced[k] = nil
       continue
     end
 
@@ -67,11 +77,11 @@ function GPLACER.Update(mapname, forceupdate)
     local col = v.Ent:GetColor()
 
     local mdl
-		if IsValid(v.Ent.AttachedEntity) then
-			mdl = v.Ent.AttachedEntity:GetModel()
-		else
-			mdl = v.Ent:GetModel()
-		end
+    if IsValid(v.Ent.AttachedEntity) then
+      mdl = v.Ent.AttachedEntity:GetModel()
+    else
+      mdl = v.Ent:GetModel()
+    end
     local ang = v.Ent:GetAngles()
 
     local KeyValues = {
@@ -107,7 +117,7 @@ function GPLACER.Sync()
 end
 
 GPLACER.CurPlaced = GPLACER.CurPlaced or {}
-util.AddNetworkString("gplacer_updateprops")
+util.AddNetworkString("gplacer_updateprop")
 util.AddNetworkString("gplacer_updatestate")
 
 local SpawnHooks = {
@@ -139,15 +149,19 @@ for hooks, override in pairs(SpawnHooks) do
 end
 
 function GPLACER.RegisterEnt(ent, class, pos, KeyValues)
-  table.insert(GPLACER.CurPlaced, {
+
+  class = class or ent:GetClass()
+
+  local index = table.insert(GPLACER.CurPlaced, {
     Ent = ent,
-    Pos = pos,
     Class = class,
     KeyValues = KeyValues
   })
-  timer.Simple(math.Min(FrameTime(),1), function() -- for some reason was causing issues until I put it on a timer, probably waiting for then end to initialize in the next frame.
-    net.Start("gplacer_updateprops")
-    net.WriteTable(GPLACER.CurPlaced)
+  timer.Simple(0.2, function()
+    net.Start("gplacer_updateprop")
+    net.WriteUInt(index, 32)
+    net.WriteEntity(ent)
+    net.WriteString(class)
     net.Broadcast()
   end)
 end
@@ -199,7 +213,6 @@ function constraint.CreateKeyframeRope(pos, width, mat, constraint, ent1, lpos1,
   return rope
 end
 
--- not going to bother putting admin checks here, I figure this will only ever be used by one person or their friends while mapping.
 concommand.Add("gplacer_toggle", function(ply, cmd, args)
   local enabled = GPLACER.Enabled and "Off" or "On"
   if GPLACER[enabled](ply) then
@@ -208,10 +221,5 @@ concommand.Add("gplacer_toggle", function(ply, cmd, args)
 end)
 
 concommand.Add("gplacer_update", function(ply, cmd, args)
-  if GPLACER.Update(args[1], true) then
-    ply:ChatPrint("Gplacer: Entities Updated to map!")
-    timer.Simple(math.Min(FrameTime(),0.4), function()
-      GPLACER.Update(args[1]) -- failsafe for weird behavior.
-    end)
-  end
+  GPLACER.Update(args[1], true)
 end)
